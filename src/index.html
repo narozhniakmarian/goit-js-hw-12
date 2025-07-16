@@ -6,30 +6,40 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vanilla App Template</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
   <body>
-  <header class="header">
-  <div class="container">
-    <form class="form">
-      <label>
-        <input
-          type="text"
-          name="search-text"
-          placeholder="Search images..."
-          required
-        />
-      </label>
-      <button type="submit">Search</button>
-    </form>
-  </div>
-</header>
+    <header class="header">
+      <div class="container">
+        <form class="form">
+          <label>
+            <input
+              type="text"
+              name="search-text"
+              placeholder="Search images..."
+              required
+            />
+          </label>
+          <button type="submit" class="submit">Search</button>
+        </form>
+      </div>
+    </header>
 
     <main>
       <div class="container">
         <div class="gallery-wrepper">
           <ul class="gallery"></ul>
           <span class="loader"></span>
+        </div>
+        <div class="load-more-container is-hidden">
+          <button id="load-more-btn" class="load-more-btn">Load more</button>
+          <button id="back-to-top-btn" class="back-to-top-btn">
+            <i class="fas fa-angle-double-up"></i>
+          </button>
         </div>
       </div>
     </main>
