@@ -67,7 +67,7 @@ export function hideLoadMoreButton() {
 
 export function handleBackToTop() {
     const backToTop = document.querySelector('.back-to-top-btn');
-    if (!backToTop) return;
+
 
     backToTop.addEventListener('click', () => {
         window.scrollTo({
