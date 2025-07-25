@@ -6,7 +6,8 @@ import {
     hideLoader,
     showLoadMoreButton,
     hideLoadMoreButton,
-    handleBackToTop
+    handleBackToTop,
+    hiddenBackToTop
 } from './js/render-functions.js';
 
 import iziToast from 'izitoast';
@@ -14,16 +15,17 @@ import 'izitoast/dist/css/iziToast.min.css';
 
 const form = document.querySelector('.form');
 const input = form.querySelector('input[name="search-text"]');
+const loadMoreBtn = document.getElementById('load-more-btn');
 let currentQuery = '';
 let currentPage = 1;
 
-
+let shouldShowScrollEndToast = false;
+let hasShownScrollEndToast = false;
 
 form.addEventListener('submit', async function (event) {
     event.preventDefault();
     currentQuery = input.value.trim();
     currentPage = 1;
-
     if (!currentQuery) {
         iziToast.error({
             title: 'Error',
@@ -32,6 +34,8 @@ form.addEventListener('submit', async function (event) {
         });
         return;
     }
+
+    hiddenBackToTop();
 
     showLoader();
     clearGallery();
@@ -53,21 +57,26 @@ form.addEventListener('submit', async function (event) {
 
         createGallery(data.hits);
 
+        handleBackToTop();
         if (data.totalHits > 15) {
             showLoadMoreButton();
-            handleBackToTop();
         }
 
         if (currentPage * 15 >= data.totalHits) {
             hideLoadMoreButton();
-            iziToast.info({
-                title: 'Info',
-                message: "We're sorry, but you've reached the end of search results.",
-                position: 'topRight',
-            });
+            // iziToast.info({
+            //     title: 'Info',
+            //     message: "We're sorry, but you've reached the end of search results.",
+            //     position: 'topRight',
+            // });
+            shouldShowScrollEndToast = true;
+            hasShownScrollEndToast = false;
+            hiddenBackToTop();
         }
     } catch (error) {
         hideLoader();
+        hiddenBackToTop();
+
         iziToast.error({
             title: 'Error',
             message: 'Something went wrong.',
@@ -75,39 +84,44 @@ form.addEventListener('submit', async function (event) {
         });
     }
 
+
 });
 
-document.addEventListener('click', async function (event) {
-    if (event.target.id === 'load-more-btn') {
-        currentPage += 1;
-        hideLoadMoreButton();
-        showLoader();
+loadMoreBtn.addEventListener('click', async function (event) {
 
-        try {
-            const data = await getImagesByQuery(currentQuery, currentPage);
-            hideLoader();
-            createGallery(data.hits);
-            smoothScroll();
+    currentPage += 1;
+    hideLoadMoreButton();
+    showLoader();
 
-            if (currentPage * 15 >= data.totalHits) {
-                hideLoadMoreButton();
-                iziToast.info({
-                    title: 'Info',
-                    message: "We're sorry, but you've reached the end of search results.",
-                    position: 'topRight',
-                });
-            } else {
-                showLoadMoreButton();
-            }
-        } catch (error) {
-            hideLoader();
-            iziToast.error({
-                title: 'Error',
-                message: 'Could not load more images.',
-                position: 'topRight',
-            });
+    try {
+        const data = await getImagesByQuery(currentQuery, currentPage);
+        hideLoader();
+        createGallery(data.hits);
+        smoothScroll();
+
+        if (currentPage * 15 >= data.totalHits) {
+
+            hideLoadMoreButton();
+            // iziToast.info({
+            //     title: 'Info',
+            //     message: "We're sorry, but you've reached the end of search results.",
+            //     position: 'topRight',
+            // });
+            shouldShowScrollEndToast = true;
+            hasShownScrollEndToast = false;
+        } else {
+            showLoadMoreButton();
+
         }
+    } catch (error) {
+        hideLoader();
+        iziToast.error({
+            title: 'Error',
+            message: 'Could not load more images.',
+            position: 'topRight',
+        });
     }
+
 });
 
 
@@ -122,3 +136,24 @@ function smoothScroll() {
         });
     }
 }
+
+
+
+window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.body.scrollHeight;
+
+    if (
+        shouldShowScrollEndToast &&
+        !hasShownScrollEndToast &&
+        scrollTop + windowHeight >= documentHeight
+    ) {
+        iziToast.info({
+            title: 'Info',
+            message: "We're sorry, but you've reached the end of search results.",
+            position: 'topRight',
+        });
+        hasShownScrollEndToast = true;
+    }
+});

@@ -3,6 +3,7 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const galleryContainer = document.querySelector('.gallery');
 const loader = document.querySelector('.loader');
+const backToTop = document.querySelector('.back-to-top-btn');
 
 const lightbox = new SimpleLightbox('.gallery a', {
     captionsData: 'alt',
@@ -64,9 +65,9 @@ export function hideLoadMoreButton() {
 }
 
 
-
 export function handleBackToTop() {
-    const backToTop = document.querySelector('.back-to-top-btn');
+
+    backToTop.style.display = 'block';
 
 
     backToTop.addEventListener('click', () => {
@@ -76,3 +77,10 @@ export function handleBackToTop() {
         });
     });
 }
+
+export function hiddenBackToTop() {
+    backToTop.style.display = 'none';
+}
+
+
+
